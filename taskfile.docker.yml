@@ -1,0 +1,50 @@
+version: '3'
+
+# example usage
+#includes:
+#  back:
+#    taskfile: ./taskfile.docker.yml
+#    vars:
+#      DOCKERFILE_PATH: ./backend/Dockerfile
+#      IMAGE: backend_image
+#      CONTAINER: backend_container
+#      AWS_ACCOUNT: 000011112222
+#      REGION: us-east-1
+#      LAMBDA_NAME: backend_lambda
+#      tag: backend
+
+tasks:
+  build:
+    desc: build image; e.g. $ task build
+    cmds:
+      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+
+  push:
+    desc: push image to ecr; e.g. $ task push
+    cmds:
+      - echo {{.IMAGE}}:latest
+      - echo {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
+      - docker tag {{.IMAGE}}:latest {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
+      - docker push {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
+
+  run:
+    desc: run image; e.g. $ task run
+    cmds:
+      - echo "run {{.IMAGE}}"
+      - docker run -t --rm -d -p 8080:8080 --name {{.CONTAINER}} {{.IMAGE}}
+
+  exec:
+    desc: exec image; e.g. $ task exec
+    cmds:
+      - echo "run {{.IMAGE}}"
+      - docker exec -it {{.CONTAINER}} /bin/bash
+
+  stop:
+    desc: stop container; e.g. task stop
+    cmds:
+      - docker stop {{.CONTAINER}}
+
+  update-docker-lambda:
+    desc: update lambda; e.g. task update-docker-lambda
+    cmds:
+      - aws lambda update-function-code --function-name {{.LAMBDA_NAME}} --image-uri {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
