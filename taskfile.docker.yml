@@ -3,7 +3,7 @@ version: '3'
 # example usage
 #includes:
 #  back:
-#    taskfile: ./taskfile.docker.yml
+#    taskfile: https://raw.githubusercontent.com/gsy0911/task/main/taskfile.docker.yml
 #    vars:
 #      DOCKERFILE_PATH: ./backend/Dockerfile
 #      IMAGE: backend_image
@@ -18,6 +18,16 @@ tasks:
     desc: build image; e.g. $ task build
     cmds:
       - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+
+  build-amd64:
+    desc: build image; e.g. $ task build
+    cmds:
+      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+
+  build-arm64:
+    desc: build image; e.g. $ task build
+    cmds:
+      - docker buildx build --platform linux/arm64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
 
   push:
     desc: push image to ecr; e.g. $ task push
