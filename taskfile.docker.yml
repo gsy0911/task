@@ -10,24 +10,25 @@ version: '3'
 #      CONTAINER: backend_container
 #      AWS_ACCOUNT: 000011112222
 #      REGION: us-east-1
-#      LAMBDA_NAME: backend_lambda
 #      tag: backend
+#      TARGET: runner
+#      LAMBDA_NAME: backend_lambda
 
 tasks:
   build:
     desc: build image; e.g. $ task build
     cmds:
-      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+      - docker buildx build --target {{.TARGET}} --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
 
   build-amd64:
     desc: build image; e.g. $ task build
     cmds:
-      - docker buildx build --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+      - docker buildx build --target {{.TARGET}} --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
 
   build-arm64:
     desc: build image; e.g. $ task build
     cmds:
-      - docker buildx build --platform linux/arm64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+      - docker buildx build --target {{.TARGET}} --platform linux/arm64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
 
   push:
     desc: push image to ecr; e.g. $ task push
