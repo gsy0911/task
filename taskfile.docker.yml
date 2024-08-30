@@ -13,22 +13,15 @@ version: '3'
 #      tag: backend
 #      TARGET: runner
 #      LAMBDA_NAME: backend_lambda
+#      PLATFORM: `linux/amd64` for intel or `linux/arm64` for arm(Apple Silicon)
 
 tasks:
   build:
     desc: build image; e.g. $ task build
     cmds:
-      - docker buildx build --target {{.TARGET}} --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
-
-  build-amd64:
-    desc: build image; e.g. $ task build
-    cmds:
-      - docker buildx build --target {{.TARGET}} --platform linux/amd64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
-
-  build-arm64:
-    desc: build image; e.g. $ task build
-    cmds:
-      - docker buildx build --target {{.TARGET}} --platform linux/arm64 -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+      - echo {{.IMAGE}}:latest
+      - docker buildx build --target {{.TARGET}} --platform {{.PLATFORM}} -t {{.IMAGE}}:latest -f {{.DOCKERFILE_PATH}} .
+    prefix: 🐳
 
   push:
     desc: push image to ecr; e.g. $ task push
@@ -37,25 +30,10 @@ tasks:
       - echo {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
       - docker tag {{.IMAGE}}:latest {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
       - docker push {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
-
-  run:
-    desc: run image; e.g. $ task run
-    cmds:
-      - echo "run {{.IMAGE}}"
-      - docker run -t --rm -d -p 8080:8080 --name {{.CONTAINER}} {{.IMAGE}}
-
-  exec:
-    desc: exec image; e.g. $ task exec
-    cmds:
-      - echo "run {{.IMAGE}}"
-      - docker exec -it {{.CONTAINER}} /bin/bash
-
-  stop:
-    desc: stop container; e.g. task stop
-    cmds:
-      - docker stop {{.CONTAINER}}
+    prefix: 🐳
 
   update-docker-lambda:
     desc: update lambda; e.g. task update-docker-lambda
     cmds:
       - aws lambda update-function-code --function-name {{.LAMBDA_NAME}} --image-uri {{.AWS_ACCOUNT}}.dkr.ecr.{{.REGION}}.amazonaws.com/{{.IMAGE}}:{{.tag}}
+    prefix: 🐳
